@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns  # Optional, but often makes plots nicer
-import ruptures as rpt
-import pymc3 as pm
+import seaborn as sns  
+#import ruptures as rpt
+#import pymc3 as pm
 
 def plot_data(df, x_col, y_cols, plot_type='line', title=None, xlabel=None, ylabel=None, figsize=(10, 6), **kwargs):
     """
@@ -100,6 +100,7 @@ def cusum_method(data, k, h, initial_mean=None, title="CUSUM Chart"):
     plt.show()
     
     return change_points
+
 """
 def bayesian_change_point_detection(data, model_type="Normal", num_samples=1000):
    
@@ -153,3 +154,53 @@ def bayesian_change_point_detection(data, model_type="Normal", num_samples=1000)
     
     return detected_change_points
 """
+
+def plot_time_series(df, column, title):
+    """
+    Plots a time series graph for a specific column.
+    """
+    plt.figure(figsize=(12, 6))
+    plt.plot(df.index, df[column], label=column, color="blue")
+    plt.title(title)
+    plt.xlabel("Year")
+    plt.ylabel(column)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# ------------------ 5. Identify Trends (Rolling Average) ------------------
+def rolling_average(df, column, window=30):
+    """
+    Computes rolling average to identify trends.
+.
+    """
+    df[f"{column}_rolling"] = df[column].rolling(window=window).mean()
+    return df
+
+# ------------------ 6. Correlation Analysis ------------------
+def plot_correlation_heatmap(df):
+    """
+    Plots a correlation heatmap for numerical columns in a DataFrame.
+    """
+    numerical_df = df.select_dtypes(include=np.number) #Keep only numerical columns
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(numerical_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+    plt.title("Correlation Heatmap")
+    plt.show()
+
+# ------------------ 7. Outlier Detection ------------------
+def detect_outliers(df, column):
+    """
+    Detects outliers in a given column using the IQR method.
+    """
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    # Removing Outliers
+    df_filtered = df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+    print(f"✅ Outliers removed from {column}. Original: {len(df)}, New: {len(df_filtered)}")
+    
+    return df_filtered
